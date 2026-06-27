@@ -1,0 +1,421 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>AI Career Chatbot — ResumeAI</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+  <style>
+    .chat-layout {
+      display: flex;
+      flex-direction: column;
+      height: calc(100vh - 64px);
+      background: var(--gray-50);
+    }
+    .chat-topbar {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.5rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--gray-200);
+      flex-shrink: 0;
+    }
+    .chat-topbar .bot-avatar {
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem; flex-shrink: 0;
+    }
+    .chat-topbar .bot-info h3 { font-size: 1rem; margin-bottom: 2px; }
+    .chat-topbar .bot-info p  { font-size: .8rem; color: var(--success); margin: 0; }
+    .chat-topbar .bot-info p::before { content: '● '; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .msg {
+      display: flex;
+      gap: .75rem;
+      max-width: 75%;
+      animation: fadeUp .2s ease;
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .msg.user  { align-self: flex-end; flex-direction: row-reverse; }
+    .msg.bot   { align-self: flex-start; }
+
+    .msg-avatar {
+      width: 34px; height: 34px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .85rem; flex-shrink: 0; margin-top: 2px;
+    }
+    .msg.bot  .msg-avatar { background: linear-gradient(135deg, var(--primary), var(--accent)); color: #fff; }
+    .msg.user .msg-avatar { background: var(--gray-200); color: var(--gray-700); }
+
+    .msg-bubble {
+      padding: .75rem 1rem;
+      border-radius: 16px;
+      font-size: .92rem;
+      line-height: 1.6;
+    }
+    .msg.bot  .msg-bubble {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-bottom-left-radius: 4px;
+      color: var(--gray-800);
+    }
+    .msg.user .msg-bubble {
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .msg-bubble p  { margin-bottom: .5rem; color: inherit; }
+    .msg-bubble p:last-child { margin-bottom: 0; }
+    .msg-bubble ul { padding-left: 1.25rem; margin: .5rem 0; }
+    .msg-bubble li { margin-bottom: .25rem; }
+    .msg-bubble strong { font-weight: 600; }
+    .msg-bubble code {
+      background: rgba(0,0,0,.07); padding: .1rem .4rem;
+      border-radius: 4px; font-size: .85em; font-family: monospace;
+    }
+
+    .typing-indicator .msg-bubble {
+      display: flex; align-items: center; gap: 5px;
+      padding: .85rem 1.1rem;
+    }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--gray-400);
+      animation: bounce .9s infinite;
+    }
+    .dot:nth-child(2) { animation-delay: .15s; }
+    .dot:nth-child(3) { animation-delay: .3s;  }
+    @keyframes bounce {
+      0%,60%,100% { transform: translateY(0); }
+      30%          { transform: translateY(-6px); }
+    }
+
+    .suggestions {
+      padding: .75rem 1.5rem;
+      display: flex; gap: .5rem; flex-wrap: wrap;
+      background: var(--white);
+      border-top: 1px solid var(--gray-100);
+      flex-shrink: 0;
+    }
+    .suggestion-chip {
+      padding: .4rem .9rem;
+      border-radius: 20px;
+      border: 1.5px solid var(--gray-200);
+      background: var(--white);
+      font-size: .82rem; color: var(--gray-600);
+      cursor: pointer; transition: var(--transition);
+      font-family: var(--font-body);
+    }
+    .suggestion-chip:hover {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: var(--primary-light);
+    }
+
+    .chat-input-area {
+      padding: 1rem 1.5rem;
+      background: var(--white);
+      border-top: 1px solid var(--gray-200);
+      flex-shrink: 0;
+    }
+    .input-row {
+      display: flex; gap: .75rem; align-items: flex-end;
+    }
+    .input-row textarea {
+      flex: 1;
+      resize: none;
+      padding: .7rem 1rem;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      font-family: var(--font-body);
+      font-size: .95rem;
+      color: var(--gray-800);
+      outline: none;
+      transition: var(--transition);
+      max-height: 140px;
+      overflow-y: auto;
+      line-height: 1.5;
+    }
+    .input-row textarea:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(79,70,229,.1); }
+    .send-btn {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      border: none; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem; flex-shrink: 0;
+      transition: var(--transition);
+    }
+    .send-btn:hover   { background: var(--primary-dark); transform: scale(1.05); }
+    .send-btn:disabled { background: var(--gray-300); cursor: not-allowed; transform: none; }
+
+    .clear-btn {
+      font-size: .8rem; color: var(--gray-400);
+      background: none; border: none;
+      cursor: pointer; padding: .3rem .5rem;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-body);
+    }
+    .clear-btn:hover { color: var(--danger); background: #fee2e2; }
+
+    @media (max-width: 768px) {
+      .msg { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">Resume<span>AI</span></a>
+  <div class="navbar-links">
+    <a href="dashboard.html" class="btn btn-ghost btn-sm">← Dashboard</a>
+  </div>
+  <div class="navbar-user">
+    <span id="navName" class="text-sm text-muted"></span>
+    <div class="avatar" id="navAvatar">?</div>
+    <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+  </div>
+</nav>
+
+<div class="chat-layout">
+
+  <!-- TOP BAR -->
+  <div class="chat-topbar">
+    <div class="bot-avatar">🤖</div>
+    <div class="bot-info">
+      <h3>AI Career Assistant</h3>
+      <p>Online — powered by Claude</p>
+    </div>
+    <div style="margin-left:auto">
+      <button class="clear-btn" onclick="clearChat()">🗑 Clear chat</button>
+    </div>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="chat-messages" id="chatMessages">
+    <!-- Welcome message injected by JS -->
+  </div>
+
+  <!-- SUGGESTION CHIPS -->
+  <div class="suggestions" id="suggestions">
+    <button class="suggestion-chip" onclick="sendSuggestion(this)">How can I improve my ATS score?</button>
+    <button class="suggestion-chip" onclick="sendSuggestion(this)">Generate interview questions for a software engineer</button>
+    <button class="suggestion-chip" onclick="sendSuggestion(this)">What skills should I learn for data science?</button>
+    <button class="suggestion-chip" onclick="sendSuggestion(this)">How do I write a strong professional summary?</button>
+    <button class="suggestion-chip" onclick="sendSuggestion(this)">Salary negotiation tips</button>
+  </div>
+
+  <!-- INPUT -->
+  <div class="chat-input-area">
+    <div class="input-row">
+      <textarea
+        id="userInput"
+        placeholder="Ask me anything about your career, resume, or interview prep…"
+        rows="1"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="send-btn" id="sendBtn" onclick="sendMessage()" title="Send">➤</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script>
+  const SYSTEM_PROMPT = `You are an expert AI Career Assistant integrated into ResumeAI — a platform that helps job seekers optimize their resumes, improve ATS scores, and prepare for interviews.
+
+Your expertise includes:
+- Resume writing and optimization
+- ATS (Applicant Tracking System) strategies
+- Career guidance and job search strategies
+- Interview preparation and common questions
+- Skill gap analysis and learning roadmaps
+- Salary negotiation advice
+- LinkedIn profile optimization
+- Cover letter writing
+
+Guidelines:
+- Be concise, practical, and encouraging
+- Use bullet points and structure for clarity when helpful
+- Always relate advice to the job seeker's career goals
+- If asked about a specific job role, tailor your advice accordingly
+- Keep responses focused and actionable`;
+
+  let conversationHistory = [];
+  let isLoading = false;
+
+  // ── Init ──────────────────────────────────────────────────────────
+  (async () => {
+    const user = await guardAuth();
+    if (!user) return;
+    initNavbar(user);
+
+    appendBotMessage(`Hi **${user.name}**! 👋 I'm your AI Career Assistant.\n\nI can help you with:\n- 📊 Improving your ATS score\n- ✍️ Writing a stronger resume\n- 🎯 Interview preparation\n- 📚 Skill recommendations\n- 💰 Salary negotiation\n\nWhat would you like to work on today?`);
+  })();
+
+  // ── Send message ──────────────────────────────────────────────────
+  async function sendMessage() {
+    const input = document.getElementById('userInput');
+    const text  = input.value.trim();
+    if (!text || isLoading) return;
+
+    input.value = '';
+    autoResize(input);
+    document.getElementById('suggestions').style.display = 'none';
+
+    appendUserMessage(text);
+    conversationHistory.push({ role: 'user', content: text });
+
+    setLoading(true);
+    showTyping();
+
+    try {
+      const response = await fetch('/api/chat', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: conversationHistory,
+          system: SYSTEM_PROMPT
+        })
+      });
+
+      const data = await response.json();
+      removeTyping();
+
+      if (data.error) {
+        appendBotMessage('Sorry, I encountered an error. Please try again.');
+        showToast(data.error, 'error');
+      } else {
+        const reply = data.reply || 'Sorry, I could not generate a response.';
+        appendBotMessage(reply);
+        conversationHistory.push({ role: 'assistant', content: reply });
+      }
+    } catch (err) {
+      removeTyping();
+      appendBotMessage('Connection error. Make sure the server is running.');
+    }
+
+    setLoading(false);
+  }
+
+  function sendSuggestion(btn) {
+    document.getElementById('userInput').value = btn.textContent;
+    sendMessage();
+  }
+
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  // ── Render helpers ────────────────────────────────────────────────
+  function appendUserMessage(text) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg user';
+    div.innerHTML = `
+      <div class="msg-avatar">👤</div>
+      <div class="msg-bubble">${escapeHtml(text)}</div>`;
+    container.appendChild(div);
+    scrollBottom();
+  }
+
+  function appendBotMessage(text) {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg bot';
+    div.innerHTML = `
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-bubble">${renderMarkdown(text)}</div>`;
+    container.appendChild(div);
+    scrollBottom();
+  }
+
+  function showTyping() {
+    const container = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg bot typing-indicator';
+    div.id = 'typingIndicator';
+    div.innerHTML = `
+      <div class="msg-avatar">🤖</div>
+      <div class="msg-bubble">
+        <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>`;
+    container.appendChild(div);
+    scrollBottom();
+  }
+
+  function removeTyping() {
+    const el = document.getElementById('typingIndicator');
+    if (el) el.remove();
+  }
+
+  function setLoading(state) {
+    isLoading = state;
+    document.getElementById('sendBtn').disabled = state;
+  }
+
+  function scrollBottom() {
+    const c = document.getElementById('chatMessages');
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function clearChat() {
+    conversationHistory = [];
+    document.getElementById('chatMessages').innerHTML = '';
+    document.getElementById('suggestions').style.display = 'flex';
+    appendBotMessage('Chat cleared! How can I help you today?');
+  }
+
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  }
+
+  // ── Simple markdown renderer ──────────────────────────────────────
+  function renderMarkdown(text) {
+    return text
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.+?)\*/g, '<em>$1</em>')
+      .replace(/`(.+?)`/g, '<code>$1</code>')
+      .replace(/^### (.+)$/gm, '<strong>$1</strong>')
+      .replace(/^## (.+)$/gm,  '<strong>$1</strong>')
+      .replace(/^# (.+)$/gm,   '<strong>$1</strong>')
+      .replace(/^[-•] (.+)$/gm, '<li>$1</li>')
+      .replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/^(?!<)(.+)$/gm, '$1')
+      .replace(/(<\/ul>)\s*<p>/g, '$1<p>')
+      .replace(/<p><\/p>/g, '')
+      .trim();
+  }
+
+  function escapeHtml(text) {
+    return text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+</script>
+</body>
+</html>
+EOF
+echo "chatbot.html done"

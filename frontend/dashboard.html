@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Dashboard — ResumeAI</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">Resume<span>AI</span></a>
+  <div class="navbar-user">
+    <span id="navName" class="text-sm text-muted"></span>
+    <div class="avatar" id="navAvatar">?</div>
+    <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <a class="sidebar-link active" href="dashboard.html">
+      <span class="icon">🏠</span> Dashboard
+    </a>
+    <a class="sidebar-link" href="history.html">
+      <span class="icon">📋</span> My History
+    </a>
+    <a class="sidebar-link" href="chatbot.html">
+      <span class="icon">💬</span> AI Chatbot
+    </a>
+    <div class="sidebar-section-label">Tools</div>
+    <a class="sidebar-link" href="report.html">
+      <span class="icon">📊</span> ATS Report
+    </a>
+    <a class="sidebar-link" href="optimizer.html">
+      <span class="icon">✨</span> Optimizer
+    </a>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="dashboard-main">
+    <div class="dashboard-header">
+      <h2 id="greeting">Welcome back!</h2>
+      <p class="text-muted" id="subline">Upload a resume to get started.</p>
+    </div>
+
+    <!-- STATS -->
+    <div class="stats-grid" id="statsGrid">
+      <div class="stat-card primary">
+        <div class="stat-label">Total Analyses</div>
+        <div class="stat-value" id="statTotal">—</div>
+        <div class="stat-sub">all time</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Best ATS Score</div>
+        <div class="stat-value" id="statBest">—</div>
+        <div class="stat-sub">highest achieved</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label">Latest Score</div>
+        <div class="stat-value" id="statLatest">—</div>
+        <div class="stat-sub">most recent</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label">Member Since</div>
+        <div class="stat-value" id="statSince" style="font-size:1.25rem">—</div>
+      </div>
+    </div>
+
+    <!-- UPLOAD SECTION -->
+    <div class="card mt-3">
+      <div class="card-header">
+        <h3>New Resume Analysis</h3>
+        <span class="badge badge-primary">Step 1 of 2</span>
+      </div>
+
+      <div class="upload-zone" id="dropZone">
+        <span class="upload-icon">📄</span>
+        <h3>Drop your resume here</h3>
+        <p class="text-muted mt-1">PDF or DOCX · Max 10MB</p>
+        <button class="btn btn-outline mt-3" onclick="document.getElementById('fileInput').click()">
+          Browse File
+        </button>
+        <input type="file" id="fileInput" accept=".pdf,.docx" class="hidden" onchange="handleFileSelect(this)"/>
+      </div>
+
+      <div id="filePreview" class="hidden mt-3" style="display:none">
+        <div class="d-flex align-center gap-2" style="padding:.75rem 1rem;background:var(--gray-50);border-radius:var(--radius-md);border:1px solid var(--gray-200)">
+          <span style="font-size:1.5rem">📎</span>
+          <div style="flex:1">
+            <div class="font-bold text-sm" id="fileName"></div>
+            <div class="text-sm text-muted" id="fileSize"></div>
+          </div>
+          <button class="btn btn-ghost btn-sm" onclick="clearFile()">✕ Remove</button>
+        </div>
+      </div>
+
+      <div class="form-group mt-3">
+        <label class="form-label" for="jobTitle">Job Title (optional)</label>
+        <input class="form-control" id="jobTitle" type="text" placeholder="e.g. Senior Software Engineer"/>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="jobDesc">Job Description <span style="color:var(--danger)">*</span></label>
+        <textarea class="form-control" id="jobDesc" rows="6" placeholder="Paste the full job description here…" style="resize:vertical"></textarea>
+      </div>
+
+      <div id="uploadErr" class="form-error hidden"></div>
+
+      <button class="btn btn-primary btn-lg" id="analyzeBtn" onclick="handleUpload()">
+        Analyze My Resume →
+      </button>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/dashboard.js"></script>
+</body>
+</html>

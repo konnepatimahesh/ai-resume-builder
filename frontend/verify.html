@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify Email — ResumeAI</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+</head>
+<body style="background:var(--gray-50);display:flex;flex-direction:column;min-height:100vh">
+
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">Resume<span>AI</span></a>
+</nav>
+
+<div class="container" style="flex:1;display:flex;align-items:center;justify-content:center">
+  <div class="card verify-card" id="loadingState">
+    <div class="verify-icon" style="background:var(--gray-100)">⏳</div>
+    <h3>Verifying your email…</h3>
+    <p class="mt-2 text-muted">Please wait a moment.</p>
+  </div>
+
+  <div class="card verify-card hidden" id="successState">
+    <div class="verify-icon success">✅</div>
+    <h3>Email Verified!</h3>
+    <p class="mt-2">Your account is now active. You can sign in and start using ResumeAI.</p>
+    <a href="login.html" class="btn btn-primary btn-lg w-full mt-3">Go to Login</a>
+  </div>
+
+  <div class="card verify-card hidden" id="errorState">
+    <div class="verify-icon error">❌</div>
+    <h3>Verification Failed</h3>
+    <p class="mt-2" id="errorMsg">The link is invalid or has expired.</p>
+    <a href="register.html" class="btn btn-outline btn-lg w-full mt-3">Register Again</a>
+  </div>
+</div>
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script>
+  (async () => {
+    const params = new URLSearchParams(window.location.search);
+    const token  = params.get('token');
+
+    if (!token) {
+      show('errorState');
+      document.getElementById('errorMsg').textContent = 'No verification token found in the link.';
+      return;
+    }
+
+    const result = await API.verifyEmail(token);
+
+    if (result.error) {
+      document.getElementById('errorMsg').textContent = result.error;
+      show('errorState');
+    } else {
+      show('successState');
+    }
+
+    function show(id) {
+      document.getElementById('loadingState').classList.add('hidden');
+      document.getElementById(id).classList.remove('hidden');
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ATS Report — ResumeAI</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+  <style>
+    .report-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .score-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-xl);
+      padding: 2rem 1.5rem;
+      text-align: center;
+      position: sticky; top: 80px;
+    }
+    .score-circle {
+      position: relative;
+      width: 160px; height: 160px;
+      margin: 0 auto 1.25rem;
+    }
+    .score-circle svg { transform: rotate(-90deg); }
+    .score-circle .score-num {
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%,-50%);
+      font-family: var(--font-display);
+      font-size: 2.5rem; font-weight: 800;
+      line-height: 1;
+    }
+    .score-circle .score-lbl {
+      position: absolute; bottom: 28px; left: 50%;
+      transform: translateX(-50%);
+      font-size: .78rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .sub-scores { display: flex; flex-direction: column; gap: .75rem; margin-top: 1.25rem; }
+    .sub-score-row { display: flex; align-items: center; gap: .75rem; font-size: .85rem; }
+    .sub-score-row .label { flex: 1; text-align: left; color: var(--gray-600); }
+    .sub-score-bar { flex: 2; height: 6px; background: var(--gray-200); border-radius: 3px; overflow: hidden; }
+    .sub-score-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
+    .sub-score-row .val { width: 36px; text-align: right; font-weight: 600; color: var(--gray-800); font-size: .82rem; }
+
+    .section-card {
+      background: var(--white);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      padding: 1.5rem;
+      margin-bottom: 1.25rem;
+    }
+    .section-card h3 { margin-bottom: 1rem; display: flex; align-items: center; gap: .5rem; }
+
+    .skills-grid { display: flex; flex-wrap: wrap; gap: .5rem; }
+    .skill-tag {
+      padding: .3rem .8rem; border-radius: 20px;
+      font-size: .82rem; font-weight: 500;
+    }
+    .skill-tag.matched { background: #d1fae5; color: #065f46; }
+    .skill-tag.missing { background: #fee2e2; color: #991b1b; }
+
+    .rec-list { list-style: none; display: flex; flex-direction: column; gap: .75rem; }
+    .rec-list li {
+      display: flex; gap: .75rem; align-items: flex-start;
+      padding: .75rem 1rem;
+      background: var(--gray-50); border-radius: var(--radius-md);
+      font-size: .9rem; color: var(--gray-700); line-height: 1.5;
+    }
+    .rec-list li::before { content: '→'; color: var(--primary); font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+
+    .loading-state {
+      display: flex; flex-direction: column; align-items: center;
+      justify-content: center; padding: 5rem 2rem; text-align: center;
+    }
+    .spinner {
+      width: 48px; height: 48px; border-radius: 50%;
+      border: 4px solid var(--gray-200);
+      border-top-color: var(--primary);
+      animation: spin 1s linear infinite; margin-bottom: 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .action-bar {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      .report-grid { grid-template-columns: 1fr; }
+      .score-card { position: static; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">Resume<span>AI</span></a>
+  <div class="navbar-links">
+    <a href="dashboard.html" class="btn btn-ghost btn-sm">← New Analysis</a>
+    <a href="history.html"   class="btn btn-ghost btn-sm">My History</a>
+  </div>
+  <div class="navbar-user">
+    <span id="navName" class="text-sm text-muted"></span>
+    <div class="avatar" id="navAvatar">?</div>
+    <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+  </div>
+</nav>
+
+<div class="container section">
+
+  <!-- LOADING -->
+  <div class="loading-state" id="loadingState">
+    <div class="spinner"></div>
+    <h3>Analyzing your resume…</h3>
+    <p class="text-muted mt-1">Comparing keywords, skills, and structure against the job description.</p>
+  </div>
+
+  <!-- REPORT -->
+  <div id="reportContent" class="hidden">
+
+    <div class="action-bar">
+      <div>
+        <h2 id="reportTitle">ATS Analysis Report</h2>
+        <p class="text-muted" id="reportSubtitle">Resume vs Job Description</p>
+      </div>
+      <div style="margin-left:auto;display:flex;gap:.75rem;align-items:center">
+        <a href="chatbot.html" class="btn btn-outline btn-sm">💬 Ask AI Coach</a>
+        <button class="btn btn-primary btn-sm" id="optimizeBtn" onclick="goToOptimizer()">✨ Optimize My Resume</button>
+        <a href="dashboard.html" class="btn btn-ghost btn-sm">+ New Analysis</a>
+      </div>
+    </div>
+
+    <div class="report-grid">
+
+      <!-- LEFT — SCORE CARD -->
+      <div>
+        <div class="score-card">
+          <div class="score-circle">
+            <svg width="160" height="160" viewBox="0 0 160 160">
+              <circle cx="80" cy="80" r="68" fill="none" stroke="#e2e8f0" stroke-width="12"/>
+              <circle cx="80" cy="80" r="68" fill="none" id="scoreArc"
+                stroke="#4f46e5" stroke-width="12" stroke-linecap="round"
+                stroke-dasharray="427" stroke-dashoffset="427"
+                style="transition: stroke-dashoffset 1.2s ease, stroke .5s"/>
+            </svg>
+            <div class="score-num" id="scoreNum">0</div>
+            <div class="score-lbl" id="scoreLbl">Analyzing</div>
+          </div>
+          <p style="font-size:.85rem;color:var(--gray-500)">ATS Compatibility Score</p>
+
+          <div class="sub-scores">
+            <div class="sub-score-row">
+              <span class="label">Keywords</span>
+              <div class="sub-score-bar"><div class="sub-score-fill" id="barKeyword" style="width:0;background:var(--primary)"></div></div>
+              <span class="val" id="valKeyword">0%</span>
+            </div>
+            <div class="sub-score-row">
+              <span class="label">Skills</span>
+              <div class="sub-score-bar"><div class="sub-score-fill" id="barSkill" style="width:0;background:var(--success)"></div></div>
+              <span class="val" id="valSkill">0%</span>
+            </div>
+            <div class="sub-score-row">
+              <span class="label">Structure</span>
+              <div class="sub-score-bar"><div class="sub-score-fill" id="barStructure" style="width:0;background:var(--warning)"></div></div>
+              <span class="val" id="valStructure">0%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT — DETAILS -->
+      <div>
+
+        <!-- Matched Skills -->
+        <div class="section-card">
+          <h3>✅ Matched Skills <span class="badge badge-success" id="matchedCount"></span></h3>
+          <div class="skills-grid" id="matchedSkills">
+            <span class="text-muted text-sm">No skill matches found.</span>
+          </div>
+        </div>
+
+        <!-- Missing Skills -->
+        <div class="section-card">
+          <h3>❌ Missing Skills <span class="badge badge-danger" id="missingCount"></span></h3>
+          <div class="skills-grid" id="missingSkills">
+            <span class="text-muted text-sm">No missing skills detected.</span>
+          </div>
+        </div>
+
+        <!-- Recommendations -->
+        <div class="section-card">
+          <h3>💡 Recommendations</h3>
+          <ul class="rec-list" id="recList"></ul>
+        </div>
+
+        <!-- Resume Skills Found -->
+        <div class="section-card">
+          <h3>🔍 All Skills Found in Resume <span class="badge badge-primary" id="resumeSkillCount"></span></h3>
+          <div class="skills-grid" id="resumeSkills">
+            <span class="text-muted text-sm">No skills detected.</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ERROR -->
+  <div id="errorState" class="hidden text-center" style="padding:4rem 0">
+    <div style="font-size:3rem;margin-bottom:1rem">⚠️</div>
+    <h3>Analysis Failed</h3>
+    <p class="mt-1 text-muted" id="errorMsg">Something went wrong.</p>
+    <a href="dashboard.html" class="btn btn-primary mt-3">Try Again</a>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script>
+(async () => {
+  const user = await guardAuth();
+  if (!user) return;
+  initNavbar(user);
+
+  const filename   = sessionStorage.getItem('filename');
+  const job_desc   = sessionStorage.getItem('job_desc');
+  const history_id = sessionStorage.getItem('history_id');
+  const job_title  = sessionStorage.getItem('job_title') || 'Job Position';
+
+  if (!filename || !job_desc) {
+    showError('No resume data found. Please upload your resume first.');
+    return;
+  }
+
+  document.getElementById('reportTitle').textContent   = `ATS Report — ${job_title}`;
+  document.getElementById('reportSubtitle').textContent = `Analyzing against: ${job_title}`;
+
+  // Call ATS API
+  const res = await fetch('/api/ats', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename, job_desc, history_id: parseInt(history_id) })
+  });
+
+  const data = await res.json();
+
+  if (!res.ok || data.error) {
+    showError(data.error || 'Analysis failed.');
+    return;
+  }
+
+  renderReport(data);
+
+  // Save full ATS data for optimizer/email features
+  sessionStorage.setItem('missing_skills', JSON.stringify(data.missing_skills || []));
+  sessionStorage.setItem('matched_skills', JSON.stringify(data.matched_skills || []));
+  sessionStorage.setItem('ats_score', data.ats_score || 0);
+})();
+
+function goToOptimizer() {
+  window.location.href = 'optimizer.html';
+}
+
+function renderReport(data) {
+  document.getElementById('loadingState').classList.add('hidden');
+  document.getElementById('reportContent').classList.remove('hidden');
+
+  const score = data.ats_score || 0;
+  const color = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
+
+  // Animate score circle
+  const circumference = 427;
+  const offset = circumference - (score / 100) * circumference;
+  const arc = document.getElementById('scoreArc');
+  setTimeout(() => {
+    arc.style.strokeDashoffset = offset;
+    arc.style.stroke = color;
+  }, 100);
+
+  // Animate number
+  let cur = 0;
+  const step = score / 60;
+  const timer = setInterval(() => {
+    cur = Math.min(cur + step, score);
+    document.getElementById('scoreNum').textContent = Math.round(cur) + '%';
+    if (cur >= score) {
+      clearInterval(timer);
+      document.getElementById('scoreNum').style.color = color;
+    }
+  }, 16);
+
+  document.getElementById('scoreLbl').textContent = scoreLabel(score);
+  document.getElementById('scoreLbl').style.color = color;
+
+  // Sub scores
+  animateBar('barKeyword',   'valKeyword',   data.keyword_score,   '#4f46e5');
+  animateBar('barSkill',     'valSkill',     data.skill_score,     '#10b981');
+  animateBar('barStructure', 'valStructure', data.structure_score, '#f59e0b');
+
+  // Matched skills
+  const matched = data.matched_skills || [];
+  document.getElementById('matchedCount').textContent = matched.length;
+  if (matched.length) {
+    document.getElementById('matchedSkills').innerHTML =
+      matched.map(s => `<span class="skill-tag matched">✓ ${s}</span>`).join('');
+  }
+
+  // Missing skills
+  const missing = data.missing_skills || [];
+  document.getElementById('missingCount').textContent = missing.length;
+  if (missing.length) {
+    document.getElementById('missingSkills').innerHTML =
+      missing.map(s => `<span class="skill-tag missing">✗ ${s}</span>`).join('');
+  }
+
+  // Recommendations
+  const recs = data.recommendations || [];
+  document.getElementById('recList').innerHTML =
+    recs.map(r => `<li>${r}</li>`).join('') || '<li>Your resume looks good!</li>';
+
+  // All resume skills
+  const allSkills = data.resume_skills || [];
+  document.getElementById('resumeSkillCount').textContent = allSkills.length;
+  if (allSkills.length) {
+    document.getElementById('resumeSkills').innerHTML =
+      allSkills.map(s => `<span class="skill-tag matched">${s}</span>`).join('');
+  }
+}
+
+function animateBar(barId, valId, value, color) {
+  const bar = document.getElementById(barId);
+  const val = document.getElementById(valId);
+  bar.style.background = color;
+  setTimeout(() => { bar.style.width = value + '%'; }, 200);
+  val.textContent = Math.round(value) + '%';
+}
+
+function showError(msg) {
+  document.getElementById('loadingState').classList.add('hidden');
+  document.getElementById('errorState').classList.remove('hidden');
+  document.getElementById('errorMsg').textContent = msg;
+}
+</script>
+</body>
+</html>

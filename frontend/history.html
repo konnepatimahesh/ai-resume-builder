@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>My History — ResumeAI</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">Resume<span>AI</span></a>
+  <div class="navbar-user">
+    <span id="navName" class="text-sm text-muted"></span>
+    <div class="avatar" id="navAvatar">?</div>
+    <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <a class="sidebar-link" href="dashboard.html"><span class="icon">🏠</span> Dashboard</a>
+    <a class="sidebar-link active" href="history.html"><span class="icon">📋</span> My History</a>
+    <a class="sidebar-link" href="chatbot.html"><span class="icon">💬</span> AI Chatbot</a>
+    <div class="sidebar-section-label">Tools</div>
+    <a class="sidebar-link" href="report.html"><span class="icon">📊</span> ATS Report</a>
+    <a class="sidebar-link" href="optimizer.html"><span class="icon">✨</span> Optimizer</a>
+  </aside>
+
+  <main class="dashboard-main">
+    <div class="dashboard-header">
+      <h2>My Resume History</h2>
+      <p class="text-muted">All your past analyses and optimized downloads.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Session History</h3>
+        <span class="badge badge-gray" id="totalBadge">Loading…</span>
+      </div>
+
+      <div id="emptyState" class="hidden text-center" style="padding:3rem 0">
+        <div style="font-size:3rem;margin-bottom:1rem">📭</div>
+        <h3>No history yet</h3>
+        <p class="mt-1">Upload your first resume to get started.</p>
+        <a href="dashboard.html" class="btn btn-primary mt-3">Go to Dashboard</a>
+      </div>
+
+      <div class="table-wrapper" id="tableWrapper">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Job Title</th>
+              <th>ATS Score</th>
+              <th>Date</th>
+              <th>Downloads</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <tr><td colspan="5" class="text-center text-muted" style="padding:2rem">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/history.js"></script>
+</body>
+</html>

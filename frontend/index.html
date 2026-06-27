@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeAI — Build a Resume That Gets Noticed</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <style>
+    .hero {
+      padding: 6rem 0 4rem;
+      text-align: center;
+      background: linear-gradient(160deg, #f0f4ff 0%, #fafafa 60%);
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .hero .eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      background: var(--primary-light); color: var(--primary);
+      padding: .3rem .9rem; border-radius: 20px;
+      font-size: .82rem; font-weight: 600; margin-bottom: 1.25rem;
+    }
+    .hero h1 { margin-bottom: 1.25rem; color: var(--gray-900); }
+    .hero h1 span { color: var(--primary); }
+    .hero p { font-size: 1.1rem; max-width: 560px; margin: 0 auto 2rem; }
+    .hero-btns { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+
+    .features { padding: 5rem 0; }
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 1.5rem; margin-top: 3rem;
+    }
+    .feature-card {
+      background: var(--white); border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg); padding: 1.75rem;
+      transition: var(--transition);
+    }
+    .feature-card:hover { box-shadow: var(--shadow-md); transform: translateY(-3px); }
+    .feature-icon {
+      width: 48px; height: 48px; border-radius: var(--radius-md);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1rem;
+    }
+    .feature-card h3 { margin-bottom: .5rem; }
+    .feature-card p  { font-size: .9rem; }
+
+    .how-it-works { background: var(--gray-900); color: #fff; padding: 5rem 0; }
+    .how-it-works h2 { color: #fff; text-align: center; margin-bottom: 3rem; }
+    .steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; }
+    .step { text-align: center; }
+    .step-num {
+      width: 48px; height: 48px; border-radius: 50%;
+      background: var(--primary); color: #fff;
+      font-family: var(--font-display); font-weight: 800; font-size: 1.25rem;
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 1rem;
+    }
+    .step h3 { color: #fff; margin-bottom: .5rem; }
+    .step p  { color: var(--gray-400); font-size: .9rem; }
+
+    .cta-section {
+      padding: 5rem 0; text-align: center;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: #fff;
+    }
+    .cta-section h2 { color: #fff; margin-bottom: 1rem; }
+    .cta-section p  { color: rgba(255,255,255,.8); max-width: 500px; margin: 0 auto 2rem; }
+    .btn-white { background: #fff; color: var(--primary); }
+    .btn-white:hover { background: var(--gray-100); color: var(--primary-dark); text-decoration: none; }
+
+    footer {
+      background: var(--gray-900); color: var(--gray-500);
+      padding: 2rem 0; text-align: center; font-size: .85rem;
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">Resume<span>AI</span></a>
+  <div class="navbar-links">
+    <a href="#features" class="hide-mobile">Features</a>
+    <a href="#how" class="hide-mobile">How it works</a>
+    <a href="login.html" class="btn btn-ghost btn-sm">Login</a>
+    <a href="register.html" class="btn btn-primary btn-sm">Get Started Free</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="eyebrow">✦ AI-Powered Career Tools</div>
+    <h1>Build a Resume That<br/><span>Gets You Hired</span></h1>
+    <p>Upload your resume, paste a job description, and our AI instantly scores, optimizes, and rebuilds it to beat the ATS.</p>
+    <div class="hero-btns">
+      <a href="register.html" class="btn btn-primary btn-lg">Start for Free</a>
+      <a href="#how" class="btn btn-outline btn-lg">See How It Works</a>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="features" id="features">
+  <div class="container">
+    <div class="text-center">
+      <h2>Everything you need to land the interview</h2>
+      <p class="mt-1">One platform. Four powerful tools.</p>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#eef2ff">📊</div>
+        <h3>ATS Score Analyzer</h3>
+        <p>Get an instant ATS compatibility score with keyword matching, skill gap analysis, and actionable recommendations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#d1fae5">✨</div>
+        <h3>AI Resume Optimizer</h3>
+        <p>Claude AI rewrites your summary, enhances project descriptions, and injects the right keywords automatically.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#fef3c7">💬</div>
+        <h3>Career Chatbot</h3>
+        <p>Ask anything — interview prep, skill recommendations, salary insights. Your personal AI career coach.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background:#cffafe">📄</div>
+        <h3>PDF & DOCX Export</h3>
+        <p>Download a polished, ATS-friendly resume in PDF or Word format — ready to send to any employer.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-it-works" id="how">
+  <div class="container">
+    <h2>How It Works</h2>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Upload Resume</h3>
+        <p>Upload your existing PDF or DOCX resume to get started.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Paste Job Description</h3>
+        <p>Enter the job description of the role you want to apply for.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>Get Your ATS Score</h3>
+        <p>See exactly how your resume matches the job requirements.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <h3>Download & Apply</h3>
+        <p>Download your optimized resume and apply with confidence.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container">
+    <h2>Ready to land your dream job?</h2>
+    <p>Join thousands of job seekers who have improved their ATS scores with ResumeAI.</p>
+    <a href="register.html" class="btn btn-white btn-lg">Create Free Account</a>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <p>© 2025 ResumeAI. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="js/utils.js"></script>
+<script>
+  // If already logged in, redirect to dashboard
+  (async () => {
+    const user = await getCurrentUser();
+    if (user) {
+      const loginBtn = document.querySelector('a[href="login.html"]');
+      const regBtn   = document.querySelector('a[href="register.html"]');
+      if (loginBtn) loginBtn.href = "dashboard.html";
+      if (loginBtn) loginBtn.textContent = "Dashboard";
+      if (regBtn)   regBtn.style.display = "none";
+    }
+  })();
+</script>
+</body>
+</html>

@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard — ResumeAI</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/dashboard.css"/>
+  <link rel="stylesheet" href="css/admin.css"/>
+</head>
+<body>
+
+<nav class="navbar">
+  <a class="navbar-brand" href="index.html">Resume<span>AI</span> <span class="badge badge-danger" style="font-size:.7rem;padding:.15rem .6rem">Admin</span></a>
+  <div class="navbar-user">
+    <span id="navName" class="text-sm text-muted"></span>
+    <div class="avatar" id="navAvatar" style="background:var(--danger)">A</div>
+    <button class="btn btn-ghost btn-sm" onclick="handleLogout()">Logout</button>
+  </div>
+</nav>
+
+<div class="dashboard-layout">
+  <aside class="sidebar">
+    <a class="sidebar-link active" href="admin.html"><span class="icon">🛡️</span> Admin Panel</a>
+    <div class="sidebar-section-label">Manage</div>
+    <a class="sidebar-link" href="#users" onclick="showTab('users')"><span class="icon">👥</span> Users</a>
+    <a class="sidebar-link" href="#activity" onclick="showTab('activity')"><span class="icon">📈</span> Activity Logs</a>
+    <div class="sidebar-section-label">App</div>
+    <a class="sidebar-link" href="dashboard.html"><span class="icon">🏠</span> My Dashboard</a>
+  </aside>
+
+  <main class="dashboard-main">
+
+    <!-- STATS -->
+    <div class="stats-grid mb-3">
+      <div class="stat-card primary">
+        <div class="stat-label">Total Users</div>
+        <div class="stat-value" id="statUsers">—</div>
+      </div>
+      <div class="stat-card success">
+        <div class="stat-label">Verified Users</div>
+        <div class="stat-value" id="statVerified">—</div>
+      </div>
+      <div class="stat-card warning">
+        <div class="stat-label">Total Analyses</div>
+        <div class="stat-value" id="statAnalyses">—</div>
+      </div>
+      <div class="stat-card accent">
+        <div class="stat-label">Activity Logs</div>
+        <div class="stat-value" id="statLogs">—</div>
+      </div>
+    </div>
+
+    <!-- USERS TAB -->
+    <div id="tabUsers" class="card mb-3">
+      <div class="card-header">
+        <h3>All Users</h3>
+        <input class="form-control" id="userSearch" placeholder="Search by name or email…" style="width:220px" oninput="filterUsers(this.value)"/>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Verified</th><th>Joined</th><th>Resumes</th>
+            </tr>
+          </thead>
+          <tbody id="usersBody">
+            <tr><td colspan="7" class="text-center text-muted" style="padding:2rem">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- USER RESUMES MODAL -->
+    <div id="resumeModal" class="card hidden mb-3">
+      <div class="card-header">
+        <h3>Resumes for: <span id="modalUserName"></span></h3>
+        <button class="btn btn-ghost btn-sm" onclick="closeResumeModal()">✕ Close</button>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>Job Title</th><th>ATS Score</th><th>Date</th><th>Files</th></tr>
+          </thead>
+          <tbody id="resumeBody">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ACTIVITY TAB -->
+    <div id="tabActivity" class="card">
+      <div class="card-header">
+        <h3>Activity Logs</h3>
+        <div class="d-flex align-center gap-2">
+          <input type="date" class="form-control" id="fromDate" style="width:160px"/>
+          <span class="text-muted text-sm">to</span>
+          <input type="date" class="form-control" id="toDate" style="width:160px"/>
+          <button class="btn btn-primary btn-sm" onclick="loadActivity()">Filter</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearFilter()">Clear</button>
+        </div>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>User</th><th>Email</th><th>Action</th><th>Timestamp</th></tr>
+          </thead>
+          <tbody id="activityBody">
+            <tr><td colspan="4" class="text-center text-muted" style="padding:2rem">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

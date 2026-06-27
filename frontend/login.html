@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login — ResumeAI</title>
+  <link rel="stylesheet" href="css/main.css"/>
+  <link rel="stylesheet" href="css/auth.css"/>
+</head>
+<body>
+<div class="auth-page">
+
+  <!-- LEFT PANEL -->
+  <div class="auth-panel auth-panel-left">
+    <div class="content">
+      <h1>Welcome<br/>back 👋</h1>
+      <p>Sign in to access your dashboard, view your ATS history, and continue optimizing your resume.</p>
+      <ul class="auth-features">
+        <li>View all your past resume sessions</li>
+        <li>Re-download optimized resumes</li>
+        <li>Continue chatting with the AI coach</li>
+        <li>Track your ATS score improvements</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="auth-panel">
+    <div class="auth-box">
+      <a class="auth-logo" href="index.html">ResumeAI</a>
+      <h2>Sign in to your account</h2>
+      <p class="subtitle">Good to see you again.</p>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label class="form-label" for="email">Email Address</label>
+          <input class="form-control" id="email" type="email" placeholder="john@example.com" autocomplete="email"/>
+          <div class="form-error hidden" id="emailErr"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="password">
+            Password
+            <a href="#" style="float:right;font-weight:400;font-size:.82rem">Forgot password?</a>
+          </label>
+          <div class="password-wrapper">
+            <input class="form-control" id="password" type="password" placeholder="Your password" autocomplete="current-password"/>
+            <button type="button" class="password-toggle" onclick="togglePwd('password',this)">👁</button>
+          </div>
+          <div class="form-error hidden" id="pwdErr"></div>
+        </div>
+
+        <div id="globalErr" class="form-error hidden" style="margin-bottom:.75rem"></div>
+
+        <button type="submit" class="btn btn-primary w-full" id="submitBtn">
+          Sign In
+        </button>
+      </form>
+
+      <div class="auth-footer">
+        Don't have an account? <a href="register.html">Sign up free</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<script src="js/utils.js"></script>
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    clearErrors();
+
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    let valid = true;
+
+    if (!email)    { showFieldErr('emailErr', 'Email is required.');    valid = false; }
+    if (!password) { showFieldErr('pwdErr',   'Password is required.'); valid = false; }
+    if (!valid) return;
+
+    const btn = document.getElementById('submitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+
+    const result = await API.login({ email, password });
+
+    if (result.error) {
+      showFieldErr('globalErr', result.error);
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    } else {
+      const dest = result.user.role === 'admin' ? 'admin.html' : 'dashboard.html';
+      window.location.href = dest;
+    }
+  });
+</script>
+</body>
+</html>
